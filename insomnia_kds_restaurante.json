@@ -1,0 +1,248 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-29T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_kds_restaurante",
+      "_type": "workspace",
+      "name": "KDS Restaurante — API",
+      "description": "Sistema KDS — JWT + bcrypt + express-validator + Sequelize/MySQL",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_kds_base",
+      "_type": "environment",
+      "parentId": "wrk_kds_restaurante",
+      "name": "Local (porta 3001)",
+      "data": {
+        "base_url": "http://localhost:3001"
+      },
+      "isPrivate": false
+    },
+
+    {
+      "_id": "fld_run",
+      "_type": "request_group",
+      "parentId": "wrk_kds_restaurante",
+      "name": "🚀 Run Collection — Fluxo Completo",
+      "description": "Execute 'Run Collection' nesta pasta. O token JWT é capturado automaticamente do Login.",
+      "metaSortKey": -100
+    },
+
+    {
+      "_id": "req_01_cadastro",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -1,
+      "name": "01 — Cadastrar Garçom",
+      "description": "✅ SUCESSO esperado: 201 Created\nCria o usuário. Senha salva como hash bcrypt.",
+      "method": "POST",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/cadastro",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"João Garçom\",\n  \"matricula\": \"G001\",\n  \"email\": \"joao@restaurante.com\",\n  \"senha\": \"senha123\",\n  \"perfil\": \"GARCOM\"\n}"
+      }
+    },
+    {
+      "_id": "req_02_login",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -2,
+      "name": "02 — Login (gera token JWT)",
+      "description": "✅ SUCESSO esperado: 200 OK\nO campo 'token' da resposta é referenciado automaticamente pelas próximas requisições via response chaining.",
+      "method": "POST",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"joao@restaurante.com\",\n  \"senha\": \"senha123\"\n}"
+      }
+    },
+    {
+      "_id": "req_03_abrir_comanda",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -3,
+      "name": "03 — Abrir Comanda (Mesa 5, com alergia)",
+      "description": "✅ SUCESSO esperado: 201 Created\nToken JWT capturado automaticamente do Login.",
+      "method": "POST",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"numeroMesa\": 5,\n  \"itens\": [\n    { \"nome\": \"Pizza Margherita\", \"quantidade\": 1, \"preco\": 45.90 },\n    { \"nome\": \"Coca-Cola 600ml\", \"quantidade\": 2, \"preco\": 8.00 }\n  ],\n  \"valorTotal\": 61.90,\n  \"observacaoAlergia\": \"Cliente alérgico a glúten — sem massa de trigo\"\n}"
+      }
+    },
+    {
+      "_id": "req_04_listar",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -4,
+      "name": "04 — Listar Todas as Comandas",
+      "description": "✅ SUCESSO esperado: 200 OK\nRetorna todas as comandas com dados do garçom.",
+      "method": "GET",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_05_buscar",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -5,
+      "name": "05 — Buscar Comanda ID 1",
+      "description": "✅ SUCESSO esperado: 200 OK",
+      "method": "GET",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_06_preparando",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -6,
+      "name": "06 — Status → PREPARANDO",
+      "description": "✅ SUCESSO esperado: 200 OK\nCozinheiro aceita o pedido.",
+      "method": "PATCH",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"statusPreparo\": \"PREPARANDO\"\n}"
+      }
+    },
+    {
+      "_id": "req_07_pronto",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -7,
+      "name": "07 — Status → PRONTO",
+      "description": "✅ SUCESSO esperado: 200 OK\nPrato finalizado, pronto para entrega.",
+      "method": "PATCH",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"statusPreparo\": \"PRONTO\"\n}"
+      }
+    },
+    {
+      "_id": "req_08_entregue",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -8,
+      "name": "08 — Status → ENTREGUE",
+      "description": "✅ SUCESSO esperado: 200 OK\nGarçom entregou o pedido.",
+      "method": "PATCH",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"statusPreparo\": \"ENTREGUE\"\n}"
+      }
+    },
+    {
+      "_id": "req_09_sem_token",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -9,
+      "name": "09 — ❌ Sem Token → 401",
+      "description": "❌ ERRO esperado: 401 Unauthorized\nDemonstra o middleware verifyToken bloqueando acesso.",
+      "method": "GET",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_10_token_invalido",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -10,
+      "name": "10 — ❌ Token Inválido → 403",
+      "description": "❌ ERRO esperado: 403 Forbidden\nToken malformado é rejeitado pelo verifyToken.",
+      "method": "GET",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer token.invalido.aqui" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_11_mesa_invalida",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -11,
+      "name": "11 — ❌ Mesa 99 (validação) → 422",
+      "description": "❌ ERRO esperado: 422 Unprocessable Entity\nMesa 99 excede o limite de 60. Erro do express-validator.",
+      "method": "POST",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"numeroMesa\": 99,\n  \"itens\": [\n    { \"nome\": \"Pizza\", \"quantidade\": 1, \"preco\": 45.00 }\n  ],\n  \"valorTotal\": 45.00\n}"
+      }
+    },
+    {
+      "_id": "req_12_status_retroce",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -12,
+      "name": "12 — ❌ Retroceder Status → 400",
+      "description": "❌ ERRO esperado: 400 Bad Request\nTenta mudar status de ENTREGUE → PENDENTE. Regra de negócio impede.",
+      "method": "PATCH",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"statusPreparo\": \"PENDENTE\"\n}"
+      }
+    },
+    {
+      "_id": "req_13_login_errado",
+      "_type": "request",
+      "parentId": "fld_run",
+      "metaSortKey": -13,
+      "name": "13 — ❌ Login Senha Errada → 401",
+      "description": "❌ ERRO esperado: 401 Unauthorized\nbcrypt.compare rejeita a senha incorreta.",
+      "method": "POST",
+      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"joao@restaurante.com\",\n  \"senha\": \"senhaerrada\"\n}"
+      }
+    }
+  ]
+}
