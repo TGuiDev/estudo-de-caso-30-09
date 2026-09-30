@@ -39,7 +39,7 @@
       "name": "01 — Cadastrar Garçom",
       "description": "✅ SUCESSO esperado: 201 Created\nCria o usuário. Senha salva como hash bcrypt.",
       "method": "POST",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/cadastro",
+      "url": "{{ base_url }}/auth/cadastro",
       "headers": [
         { "name": "Content-Type", "value": "application/json" }
       ],
@@ -56,7 +56,7 @@
       "name": "02 — Login (gera token JWT)",
       "description": "✅ SUCESSO esperado: 200 OK\nO campo 'token' da resposta é referenciado automaticamente pelas próximas requisições via response chaining.",
       "method": "POST",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/login",
+      "url": "{{ base_url }}/auth/login",
       "headers": [
         { "name": "Content-Type", "value": "application/json" }
       ],
@@ -73,7 +73,7 @@
       "name": "03 — Abrir Comanda (Mesa 5, com alergia)",
       "description": "✅ SUCESSO esperado: 201 Created\nToken JWT capturado automaticamente do Login.",
       "method": "POST",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "url": "{{ base_url }}/comandas",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -91,7 +91,7 @@
       "name": "04 — Listar Todas as Comandas",
       "description": "✅ SUCESSO esperado: 200 OK\nRetorna todas as comandas com dados do garçom.",
       "method": "GET",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "url": "{{ base_url }}/comandas",
       "headers": [
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
       ],
@@ -105,7 +105,7 @@
       "name": "05 — Buscar Comanda ID 1",
       "description": "✅ SUCESSO esperado: 200 OK",
       "method": "GET",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1",
+      "url": "{{ base_url }}/comandas/1",
       "headers": [
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
       ],
@@ -119,7 +119,7 @@
       "name": "06 — Status → PREPARANDO",
       "description": "✅ SUCESSO esperado: 200 OK\nCozinheiro aceita o pedido.",
       "method": "PATCH",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "url": "{{ base_url }}/comandas/1/status",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -137,7 +137,7 @@
       "name": "07 — Status → PRONTO",
       "description": "✅ SUCESSO esperado: 200 OK\nPrato finalizado, pronto para entrega.",
       "method": "PATCH",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "url": "{{ base_url }}/comandas/1/status",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -155,7 +155,7 @@
       "name": "08 — Status → ENTREGUE",
       "description": "✅ SUCESSO esperado: 200 OK\nGarçom entregou o pedido.",
       "method": "PATCH",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "url": "{{ base_url }}/comandas/1/status",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -173,7 +173,7 @@
       "name": "09 — ❌ Sem Token → 401",
       "description": "❌ ERRO esperado: 401 Unauthorized\nDemonstra o middleware verifyToken bloqueando acesso.",
       "method": "GET",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "url": "{{ base_url }}/comandas",
       "headers": [],
       "body": {}
     },
@@ -185,7 +185,7 @@
       "name": "10 — ❌ Token Inválido → 403",
       "description": "❌ ERRO esperado: 403 Forbidden\nToken malformado é rejeitado pelo verifyToken.",
       "method": "GET",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "url": "{{ base_url }}/comandas",
       "headers": [
         { "name": "Authorization", "value": "Bearer token.invalido.aqui" }
       ],
@@ -199,7 +199,7 @@
       "name": "11 — ❌ Mesa 99 (validação) → 422",
       "description": "❌ ERRO esperado: 422 Unprocessable Entity\nMesa 99 excede o limite de 60. Erro do express-validator.",
       "method": "POST",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas",
+      "url": "{{ base_url }}/comandas",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -217,7 +217,7 @@
       "name": "12 — ❌ Retroceder Status → 400",
       "description": "❌ ERRO esperado: 400 Bad Request\nTenta mudar status de ENTREGUE → PENDENTE. Regra de negócio impede.",
       "method": "PATCH",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/comandas/1/status",
+      "url": "{{ base_url }}/comandas/1/status",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_02_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}" }
@@ -235,7 +235,7 @@
       "name": "13 — ❌ Login Senha Errada → 401",
       "description": "❌ ERRO esperado: 401 Unauthorized\nbcrypt.compare rejeita a senha incorreta.",
       "method": "POST",
-      "url": "{% raw %}{{ base_url }}{% endraw %}/auth/login",
+      "url": "{{ base_url }}/auth/login",
       "headers": [
         { "name": "Content-Type", "value": "application/json" }
       ],
